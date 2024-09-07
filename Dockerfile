@@ -27,6 +27,7 @@ COPY auto_rx/requirements.txt \
 
 # Install Python packages.
 RUN pip3 install \
+  --extra-index-url https://www.piwheels.org/simple \
   --user --break-system-packages --no-warn-script-location --ignore-installed \
   -r /root/radiosonde_auto_rx/auto_rx/requirements.txt
 
