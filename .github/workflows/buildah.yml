@@ -17,6 +17,11 @@ jobs:
       matrix:
         platform: [linux/amd64, linux/386, linux/arm64, linux/arm/v6, linux/arm/v7]
     steps:
+      - name: Declare platform
+        run: |
+          platform=${{ matrix.platform }}
+          echo "PLATFORM=${platform//\//-}" >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -36,14 +41,14 @@ jobs:
             ./Dockerfile
           image: ghcr.io/${{ github.repository }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${{ github.sha }}-${{ matrix.platform }}
+          tags: ${{ github.sha }}-${{ env.PLATFORM }}
           platforms: ${{ matrix.platform }}
 
       - name: Push to registry
         uses: redhat-actions/push-to-registry@v2
         with:
           image: ghcr.io/${{ github.repository }}
-          tags: ${{ github.sha }}-${{ matrix.platform }}
+          tags: ${{ github.sha }}-${{ env.PLATFORM }}
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
