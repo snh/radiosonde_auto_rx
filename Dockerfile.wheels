@@ -32,4 +32,4 @@ RUN mkdir -p /root/.cache/pip/wheels/
 # -------------------------
 FROM scratch
 
-COPY --from=build /root/.pip/cache/wheels/ /
+COPY --from=build /root/.cache/pip/wheels/ /
