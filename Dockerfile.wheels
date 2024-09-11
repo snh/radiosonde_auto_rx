@@ -24,6 +24,9 @@ RUN pip3 install \
   --user --break-system-packages --no-warn-script-location --ignore-installed \
   -r /root/radiosonde_auto_rx/auto_rx/requirements.txt
 
+# No wheels might have been created.
+RUN mkdir -p /root/.cache/pip/wheels/
+
 # -------------------------
 # The application container
 # -------------------------
