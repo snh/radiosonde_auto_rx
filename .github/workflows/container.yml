@@ -73,7 +73,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           provenance: false
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' && 'true' || 'false' }}
+          outputs: type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' && 'true' || 'false' }}
           cache-from: type=local,src=/tmp/build-cache
 
       - name: Export digest
