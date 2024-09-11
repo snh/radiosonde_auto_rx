@@ -67,7 +67,7 @@ jobs:
           target: build
 
       - name: Final stage and push by digest
-        id: build
+        id: final
         uses: docker/build-push-action@v6
         with:
           platforms: ${{ matrix.platform }}
@@ -80,7 +80,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         run: |
           mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
+          digest="${{ steps.final.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
 
       - name: Upload digest
