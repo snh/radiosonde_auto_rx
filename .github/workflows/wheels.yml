@@ -12,13 +12,21 @@ jobs:
       matrix:
         platform: [linux/amd64, linux/386, linux/arm64, linux/arm/v6, linux/arm/v7]
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Declare platform
         run: |
           platform=${{ matrix.platform }}
           echo "PLATFORM=${platform//\//-}" >> $GITHUB_ENV
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Restore wheels
+        uses: actions/cache/restore@v4
+        with:
+          path: /root/wheels
+          key: wheels-${{ env.PLATFORM }}-${{ github.run_id }}
+          restore-keys: |
+            wheels-${{ env.PLATFORM }}-
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
@@ -34,12 +42,10 @@ jobs:
           file: Dockerfile.wheels
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=local,dest=/tmp/wheels
+          outputs: type=local,dest=/root/wheels-out
 
-      - name: Transfer wheels
-        uses: actions/cache@v4
+      - name: Save wheels
+        uses: actions/cache/save@v4
         with:
-          path: /tmp/wheels
+          path: /root/wheels-out
           key: wheels-${{ env.PLATFORM }}-${{ github.run_id }}
-          restore-keys: |
-            wheels-${{ env.PLATFORM }}-
