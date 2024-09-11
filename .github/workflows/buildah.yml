@@ -65,7 +65,7 @@ jobs:
 #        if: ${{ github.event_name != 'pull_request' }}
         uses: redhat-actions/push-to-registry@v2
         with:
-          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}-${{ env.PLATFORM }}
+          tags: ghcr.io/${{ github.repository }}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
