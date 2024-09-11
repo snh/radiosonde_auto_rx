@@ -59,6 +59,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
+          context: .
           platforms: ${{ matrix.platform }}
           provenance: false
           labels: ${{ steps.meta.outputs.labels }}
@@ -70,6 +71,7 @@ jobs:
         id: final
         uses: docker/build-push-action@v6
         with:
+          context: .
           platforms: ${{ matrix.platform }}
           provenance: false
           labels: ${{ steps.meta.outputs.labels }}
