@@ -63,7 +63,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           provenance: false
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=local,dest=${{ github.workspace }}/output
+          outputs: type=local,dest=/tmp/build-output
           cache-to: type=local,dest=/tmp/build-cache,mode=max
           target: build
 
@@ -96,7 +96,7 @@ jobs:
 
       - name: Move and list wheels
         run: |
-          mv -f ${{ github.workspace }}/output/root/.cache/pip/wheels ${{ github.workspace }}/ || true
+          mv -f /tmp/build-output/root/.cache/pip/wheels ${{ github.workspace }}/ || true
           ls -lR ${{ github.workspace }}/wheels || true
 
   merge:
