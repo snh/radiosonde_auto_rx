@@ -34,7 +34,7 @@ jobs:
             wheels-${{ env.PLATFORM }}-
 
       - name: List wheels
-        run: ls -lR ${{ github.workspace }}/wheels
+        run: ls -lR ${{ github.workspace }}/wheels || true
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
@@ -93,7 +93,7 @@ jobs:
           retention-days: 1
 
       - name: List wheels
-        run: ls -lR ${{ github.workspace }}/output/root/.cache/pip/wheels/
+        run: ls -lR ${{ github.workspace }}/output/root/.cache/pip/wheels/ || true
 
       - name: Save wheels
         uses: actions/cache/save@v4
