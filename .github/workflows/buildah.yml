@@ -25,6 +25,17 @@ jobs:
       - name: Create pip cache directory
         run: |
           mkdir -p /tmp/pip-cache
+
+      - name: Transfer pip cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/pip-cache
+          key: pip-cache-${{ env.PLATFORM }}-${{ github.run_id }}
+          restore-keys: |
+            pip-cache-${{ env.PLATFORM }}-
+
+      - name: Inspect pip cache directory
+        run: |
           ls -la /tmp/pip-cache
 
       - name: Checkout repository
@@ -50,10 +61,6 @@ jobs:
           platforms: ${{ matrix.platform }}
           extra-args: --volume /tmp/pip-cache:/root/.cache/pip
 
-      - name: Inspect cache directory
-        run: |
-          ls -la /tmp/pip-cache
-
       - name: Push to registry
         if: ${{ github.event_name != 'pull_request' }}
         uses: redhat-actions/push-to-registry@v2
@@ -63,3 +70,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Inspect pip cache directory
+        run: |
+          ls -la /tmp/pip-cache
