@@ -25,8 +25,8 @@ jobs:
           platform=${{ matrix.platform }}
           echo "PLATFORM=${platform//\//-}" >> $GITHUB_ENV
 
-      - name: Restore wheels
-        uses: actions/cache/restore@v4
+      - name: Cache wheels
+        uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/wheels
           key: wheels-${{ env.PLATFORM }}-${{ github.run_id }}
@@ -92,14 +92,10 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - name: List wheels
-        run: ls -lR ${{ github.workspace }}/output/root/.cache/pip/wheels/ || true
-
-      - name: Save wheels
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ github.workspace }}/output/root/.cache/pip/wheels/
-          key: wheels-${{ env.PLATFORM }}-${{ github.run_id }}
+      - name: Move and list wheels
+        run: |
+          mv -f ${{ github.workspace }}/output/root/.cache/pip/wheels ${{ github.workspace }}/ || true
+          ls -lR ${{ github.workspace }}/wheels || true
 
   merge:
     name: Publish multi-platform image
