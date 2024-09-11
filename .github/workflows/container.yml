@@ -1,6 +1,12 @@
 name: Container image
 
 on:
+  push:
+    branches:
+      - 'testing'
+    tags:
+      - 'v*'
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -11,10 +17,24 @@ jobs:
       matrix:
         platform: [linux/amd64, linux/386, linux/arm64, linux/arm/v6, linux/arm/v7]
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Declare platform
         run: |
           platform=${{ matrix.platform }}
           echo "PLATFORM=${platform//\//-}" >> $GITHUB_ENV
+
+      - name: Restore wheels
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ github.workspace }}/wheels
+          key: wheels-${{ env.PLATFORM }}-${{ github.run_id }}
+          restore-keys: |
+            wheels-${{ env.PLATFORM }}-
+
+      - name: List wheels
+        run: ls -lR ${{ github.workspace }}/wheels
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
@@ -23,7 +43,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -35,13 +55,26 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
 
-      - name: Build images and push by digest
+      - name: Build stage
         id: build
         uses: docker/build-push-action@v6
         with:
           platforms: ${{ matrix.platform }}
+          provenance: false
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' && 'true' || 'false' }}
+          outputs: type=local,dest=${{ github.workspace }}/output
+          cache-to: type=local,dest=/tmp/build-cache,mode=max
+          target: build
+
+      - name: Final stage and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          platforms: ${{ matrix.platform }}
+          provenance: false
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=${{ github.event_name != 'pull_request' && 'true' || 'false' }}
+          cache-from: type=local,src=/tmp/build-cache
 
       - name: Export digest
         if: ${{ github.event_name != 'pull_request' }}
@@ -58,6 +91,15 @@ jobs:
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
+
+      - name: List wheels
+        run: ls -lR ${{ github.workspace }}/output/root/.cache/pip/wheels/
+
+      - name: Save wheels
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ github.workspace }}/output/root/.cache/pip/wheels/
+          key: wheels-${{ env.PLATFORM }}-${{ github.run_id }}
 
   merge:
     name: Publish multi-platform image
