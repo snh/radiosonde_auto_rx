@@ -23,7 +23,7 @@ jobs:
       - name: Restore wheels
         uses: actions/cache/restore@v4
         with:
-          path: /root/wheels
+          path: ${{ github.workspace }}/wheels
           key: wheels-${{ env.PLATFORM }}-${{ github.run_id }}
           restore-keys: |
             wheels-${{ env.PLATFORM }}-
@@ -42,10 +42,10 @@ jobs:
           file: Dockerfile.wheels
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=local,dest=/root/wheels-out
+          outputs: type=local,dest=${{ github.workspace }}/wheels-out
 
       - name: Save wheels
         uses: actions/cache/save@v4
         with:
-          path: /root/wheels-out
+          path: ${{ github.workspace }}/wheels-out
           key: wheels-${{ env.PLATFORM }}-${{ github.run_id }}
