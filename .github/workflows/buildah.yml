@@ -36,14 +36,14 @@ jobs:
             ./Dockerfile
           image: ghcr.io/${{ github.repository }}
           labels: ${{ steps.meta.outputs.labels }}
-          tags: ${ github.sha }-${ matrix.platform }
+          tags: ${{ github.sha }}-${{ matrix.platform }}
           platforms: ${{ matrix.platform }}
 
       - name: Push to registry
         uses: redhat-actions/push-to-registry@v2
         with:
           image: ghcr.io/${{ github.repository }}
-          tags: ${ github.sha }-${ matrix.platform }
+          tags: ${{ github.sha }}-${{ matrix.platform }}
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
