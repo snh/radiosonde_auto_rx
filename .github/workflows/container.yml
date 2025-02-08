@@ -15,10 +15,20 @@ on:
 jobs:
   build:
     name: Build container image
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        platform: [linux/amd64, linux/386, linux/arm64, linux/arm/v6, linux/arm/v7]
+        include:
+          - os: ubuntu-24.04
+            platform: linux/amd64
+          - os: ubuntu-24.04
+            platform: linux/386
+          - os: ubuntu-24.04-arm
+            platform: linux/arm64
+          - os: ubuntu-24.04
+            platform: linux/arm/v6
+          - os: ubuntu-24.04
+            platform: linux/arm/v7
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
